@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+  <head>
+    <title>money-input demo</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
+    <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+    <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+
+    <link rel="import" href="../money-input.html">
+
+    <style is="custom-style" include="demo-pages-shared-styles">
+    </style>
+  </head>
+  <body>
+
+    <div class="vertical-section-container centered">
+      <h3>Basic</h3>
+      <demo-snippet>
+        <template>
+          <money-input></money-input>
+        </template>
+      </demo-snippet>
+
+      <h3>Preset/Error</h3>
+      <demo-snippet>
+        <template>
+          <money-input max-value="2" value="4.00"></money-input>
+        </template>
+      </demo-snippet>
+
+      <h3>Custom style</h3>
+      <demo-snippet>
+        <template>
+          <style is="custom-style">
+            money-input.custom-style {
+              --money-input-width: 120px;
+            }
+          </style>
+          <money-input class="custom-style" value="{{value}}"></money-input>
+        </template>
+      </demo-snippet>
+    </div>
+
+  </body>
+</html>

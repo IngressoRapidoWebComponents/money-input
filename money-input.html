@@ -1,0 +1,249 @@
+<!--
+@license
+Copyright (c) 2016 The Ingresso Rápido Web Components Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://ingressorapidowebcomponents.github.io/LICENSE.txt
+The complete set of authors may be found at http://ingressorapidowebcomponents.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://ingressorapidowebcomponents.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-input/paper-input.html">
+<link rel="import" href="../paper-input/paper-input-error.html">
+
+<!--
+`<money-input>` is a customizable input validator and mask for currency amounts.
+It uses the paper-input element for create the element form.
+
+Default options example:
+
+```html
+    <money-input value="{{value}}"></money-input>
+```
+
+### Styling
+
+Custom property | Description | Default
+----------------|-------------|----------
+`--money-input-width` | Field width | 100%
+
+@demo demo/index.html
+-->
+
+<dom-module id="money-input">
+  <template>
+    <style is="custom-style">
+      :host {
+        display: block;
+      }
+      .prefix {
+        padding-right: 10px;
+      }
+      paper-input {
+        width: var(--money-input-width);
+      }
+    </style>
+    <paper-input
+            id="input"
+            label="[[label]]"
+            required$="[[required]]"
+            value="{{_formattedValue}}"
+            name$="[[name]]"
+            allowed-pattern="[0-9\.\,]"
+            disabled$="[[disabled]]"
+            readonly$="[[readonly]]">
+      <div prefix class="prefix">[[currency]]</div>
+    </paper-input>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'money-input',
+
+      properties: {
+        /** Internal var to store formatted number */
+        _formattedValue: {
+          type: String,
+          value: undefined,
+          observer: '_onValueChanged'
+        },
+
+        /** Disable field */
+        disabled: {
+          type: Boolean,
+          value: false
+        },
+
+        /** Sets field as readonly */
+        readonly: {
+          type: Boolean,
+          value: false
+        },
+
+        /** Sets field as required */
+        required: {
+          type: Boolean,
+          value: false
+        },
+
+        /** Field name */
+        name: {
+          type: String,
+          value: "amount"
+        },
+
+        /** Field label */
+        label: {
+          type: String,
+          value: 'Amount'
+        },
+
+        /** Presets field value notifies new values */
+        value: {
+          type: Number,
+          notify: true
+        },
+
+        /** Currency used as field prefix */
+        currency: {
+          type: String,
+          value: "$"
+        },
+
+        /** Max value accepted by field */
+        maxValue: {
+          type: Number,
+          value: 1000000
+        },
+
+        /** Min value accepted by field */
+        minValue: {
+          type: Number,
+          value: 0
+        },
+
+        /** Decimal precision -> Use "0" for integer amount */
+        precision: {
+          type: Number,
+          value: 2
+        },
+
+        /** Error message for values higher than min value */
+        minValueErrorMessage: {
+          type: String,
+          value: "Value must be higher than"
+        },
+
+        /** Error message for values higher than max value */
+        maxValueErrorMessage: {
+          type: String,
+          value: "Value must be lower than"
+        },
+
+        /** Symbol used to separate number blocks */
+        unitSymbol: {
+          type: String,
+          value: ","
+        },
+
+        /** Symbol used to separate decimal from integer part */
+        decimalSymbol: {
+          type: String,
+          value: "."
+        }
+      },
+
+      observers: [
+        '_setValue(_formattedValue)'
+      ],
+
+      ready: function() {
+        if(this.value) {
+          this._formattedValue = "" + (this.value.length >= this.precision ? this.value : this.value + Array(this.precision + 1).join("0"));
+          this._setValue = function (f) {
+            this.value = this._removeUI(this._formattedValue) / (Math.pow(10, this.precision));
+          }
+        }
+      },
+
+      _setValue: function(){
+        //stub
+      },
+
+      _getDecimal: function(string){
+        return string.match(new RegExp("(\\d{0,"+this.precision+"})$"))[0];
+      },
+
+      _parse: function(string) {
+        var dec = this._getDecimal(string);
+        var reg = new RegExp(dec+"$");
+        var result = string.replace(reg, '');
+        result = (result.length<=1 ? result : this._markAmount(result))+this.decimalSymbol+dec;
+
+        return result;
+      },
+
+      _markAmount: function(string) {
+        return string.replace(/(0*)(?=[^0]*)/, "").split(/(?=(?:...)*$)/).join(this.unitSymbol);
+      },
+
+      _onValueChanged: function(){
+        if (this._formattedValue === '') {
+          return;
+        }
+
+        if(this.precision==0){
+          this._formattedValue = this._markAmount(this._removeUI(this._formattedValue));
+          return;
+        }
+
+        if(this._removeUI(this._formattedValue).length<this.precision+1) {
+          var dec = this._getDecimal(this._removeUI(this._formattedValue)), group;
+          var decNoZeros = dec.replace(/(0*)(?=[^0]*)/, "");
+          //check if needs to add 0 in the end, beginning or both
+          group = dec.match(new RegExp("(0*)(?="+ decNoZeros +")"));
+          if(group.filter(function(e,i){if(e.length>0){return e;}}).length>0){
+            if(group[0].length+decNoZeros.length==this.precision){
+              this._formattedValue = "0"+ this._getDecimal(this._formattedValue);
+              return;
+            } else if(group[0].length+decNoZeros.length < this.precision) {
+              this._formattedValue = group[0] + decNoZeros + Array((this.precision-(group[0].length+decNoZeros.length))+1).join("0");
+              return;
+            }
+          } else {
+            this._formattedValue = Array((this.precision+1-decNoZeros.length)+1).join("0") + decNoZeros;
+          }
+          return;
+        }
+
+        this._validate(this._removeUI(this._formattedValue));
+
+        this._formattedValue = this._parse(this._removeUI(this._formattedValue));
+      },
+
+      _removeUI: function(string){
+        return string.replace(/[^\d]*/g, '');
+      },
+
+      _validate: function(value) {
+        var n = parseFloat(value)/(Math.pow(10,this.precision));
+
+        if(n>this.maxValue){
+          this.$.input.invalid = true;
+          this.$.input.errorMessage = this.maxValueErrorMessage + " "+ this.maxValue;
+        } else if(n<this.minValue){
+          this.$.input.invalid = true;
+          this.$.input.errorMessage = this.minValueErrorMessage + " "+ this.minValue;
+        } else {
+          this.$.input.invalid = false;
+          this.$.input.errorMessage = "";
+        }
+
+      }
+    });
+
+  </script>
+
+</dom-module>

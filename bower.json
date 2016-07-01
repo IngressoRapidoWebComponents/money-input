@@ -1,0 +1,31 @@
+{
+  "name": "money-input",
+  "description": "`money-input` is a customizable input validator and mask for currency amounts.",
+  "main": "money-input.html",
+  "version": "1.0.0",
+  "homepage": "https://ingressorapidowebcomponents.github.io/components/money-input",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.4.0",
+    "paper-input": "PolymerElements/paper-input#^1.1.14"
+  },
+  "authors": [
+    "Gabrielle Dias (https://github.com/gabrielle-perez-movile / https://github.com/gabycperezdias)"
+  ],
+  "keywords": [
+    "web-components",
+    "web-component",
+    "polymer",
+    "money",
+    "input",
+    "ecommerce",
+    "amount",
+    "currency",
+    "mask"
+  ],
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
+    "web-component-tester": "^4.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+  }
+}
