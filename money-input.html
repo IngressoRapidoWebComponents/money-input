@@ -50,7 +50,7 @@ Custom property | Description | Default
             required$="[[required]]"
             value="{{_formattedValue}}"
             name$="[[name]]"
-            allowed-pattern="[0-9\.\,]"
+            allowed-pattern="[0-9\.\,\-]"
             disabled$="[[disabled]]"
             readonly$="[[readonly]]">
       <div prefix class="prefix">[[currency]]</div>
@@ -103,7 +103,8 @@ Custom property | Description | Default
         /** Presets field value notifies new values */
         value: {
           type: Number,
-          notify: true
+          notify: true,
+          observer: "_valueChange"
         },
 
         /** Currency used as field prefix */
@@ -161,10 +162,21 @@ Custom property | Description | Default
 
       ready: function() {
         if(this.value) {
-          this._formattedValue = "" + (this.value.length >= this.precision ? this.value : this.value + Array(this.precision + 1).join("0"));
-          this._setValue = function (f) {
-            this.value = this._removeUI(this._formattedValue) / (Math.pow(10, this.precision));
+          var signal = (""+this.value).indexOf("\-")>=0 ? "-" : "";
+          this._formattedValue = signal + (this.value.length >= this.precision ? this.value : (this.value + Array(this.precision + 1).join("0")));
+        }
+        this._setValue = function (f) {
+          if(this._formattedValue) {
+            var signal = this._formattedValue.indexOf("\-") >= 0 ? "-" : "";
+            this.set("value", signal + (parseFloat(this._removeUI(this._formattedValue)) / (Math.pow(10, this.precision))).toFixed(this.precision));
           }
+        }
+      },
+
+      _valueChange: function(){
+        if(this.value && this._formattedValue!= this.value) {
+          var signal = (""+this.value).indexOf("\-")>=0 ? "-" : "";
+          this._formattedValue = signal + ((""+this.value).length >= this.precision ? this.value : (this.value + Array(this.precision + 1).join("0")));
         }
       },
 
@@ -198,6 +210,7 @@ Custom property | Description | Default
           this._formattedValue = this._markAmount(this._removeUI(this._formattedValue));
           return;
         }
+        var signal = this._formattedValue.indexOf("\-")>=0 ? "-" : "";
 
         if(this._removeUI(this._formattedValue).length<this.precision+1) {
           var dec = this._getDecimal(this._removeUI(this._formattedValue)), group;
@@ -206,21 +219,21 @@ Custom property | Description | Default
           group = dec.match(new RegExp("(0*)(?="+ decNoZeros +")"));
           if(group.filter(function(e,i){if(e.length>0){return e;}}).length>0){
             if(group[0].length+decNoZeros.length==this.precision){
-              this._formattedValue = "0"+ this._getDecimal(this._formattedValue);
+              this._formattedValue = signal + "0"+ this._getDecimal(this._formattedValue);
               return;
             } else if(group[0].length+decNoZeros.length < this.precision) {
-              this._formattedValue = group[0] + decNoZeros + Array((this.precision-(group[0].length+decNoZeros.length))+1).join("0");
+              this._formattedValue = signal + group[0] + decNoZeros + Array((this.precision-(group[0].length+decNoZeros.length))+1).join("0");
               return;
             }
           } else {
-            this._formattedValue = Array((this.precision+1-decNoZeros.length)+1).join("0") + decNoZeros;
+            this._formattedValue = signal + Array((this.precision+1-decNoZeros.length)+1).join("0") + decNoZeros;
           }
           return;
         }
 
-        this._validate(this._removeUI(this._formattedValue));
+        this._validate(this._formattedValue);
 
-        this._formattedValue = this._parse(this._removeUI(this._formattedValue));
+        this._formattedValue = signal + this._parse(this._removeUI(this._formattedValue));
       },
 
       _removeUI: function(string){
@@ -228,7 +241,8 @@ Custom property | Description | Default
       },
 
       _validate: function(value) {
-        var n = parseFloat(value)/(Math.pow(10,this.precision));
+        var signal = value.indexOf("\-")>=0 ? "-" : "";
+        var n = parseFloat(signal+this._removeUI(value))/(Math.pow(10,this.precision));
 
         if(n>this.maxValue){
           this.$.input.invalid = true;
