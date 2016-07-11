@@ -161,9 +161,18 @@ Custom property | Description | Default
       ],
 
       ready: function() {
-        if(this.value) {
+        this.renderElement();
+      },
+
+      /** You can use this to re-render the input */
+      renderElement: function(){
+        this.$.input.invalid = false;
+        if(this.value && !this._formattedValue) {
           var signal = (""+this.value).indexOf("\-")>=0 ? "-" : "";
           this._formattedValue = signal + (this.value.length >= this.precision ? this.value : (this.value + Array(this.precision + 1).join("0")));
+        } else {
+          this.value = undefined;
+          this._formattedValue = "";
         }
         this._setValue = function (f) {
           if(this._formattedValue) {
@@ -231,7 +240,7 @@ Custom property | Description | Default
           return;
         }
 
-        this._validate(this._formattedValue);
+        this.validate();
 
         this._formattedValue = signal + this._parse(this._removeUI(this._formattedValue));
       },
@@ -247,14 +256,21 @@ Custom property | Description | Default
         if(n>this.maxValue){
           this.$.input.invalid = true;
           this.$.input.errorMessage = this.maxValueErrorMessage + " "+ this.maxValue;
+          return false;
         } else if(n<this.minValue){
           this.$.input.invalid = true;
           this.$.input.errorMessage = this.minValueErrorMessage + " "+ this.minValue;
+          return false;
         } else {
           this.$.input.invalid = false;
           this.$.input.errorMessage = "";
+          return true;
         }
+      },
 
+      /** Return validation based on required, max and min configs */
+      validate: function(){
+        return this.$.input.validate() && this._validate(this.$.input.value);
       }
     });
 
