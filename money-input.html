@@ -170,9 +170,6 @@ Custom property | Description | Default
         if(this.value && !this._formattedValue) {
           var signal = (""+this.value).indexOf("\-")>=0 ? "-" : "";
           this._formattedValue = signal + (this.value.length >= this.precision ? this.value : (this.value + Array(this.precision + 1).join("0")));
-        } else {
-          this.value = undefined;
-          this._formattedValue = "";
         }
         this._setValue = function (f) {
           if(this._formattedValue) {
@@ -180,6 +177,12 @@ Custom property | Description | Default
             this.set("value", signal + (parseFloat(this._removeUI(this._formattedValue)) / (Math.pow(10, this.precision))).toFixed(this.precision));
           }
         }
+      },
+
+      /** Clean completely the input value, this method will set the value to undefined */
+      reset: function(){
+        this.value = undefined;
+        this._formattedValue = "";
       },
 
       _valueChange: function(){
