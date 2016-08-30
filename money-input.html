@@ -216,7 +216,7 @@ Custom property | Description | Default
       _onValueChanged: function(){
         this.validate();
 
-        if (this._formattedValue === '') {
+        if (this._formattedValue === '' || (this._formattedValue === '0' && this.precision==0)) {
           return;
         }
 
