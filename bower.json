@@ -2,7 +2,7 @@
   "name": "money-input",
   "description": "`money-input` is a customizable input validator and mask for currency amounts.",
   "main": "money-input.html",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "homepage": "https://ingressorapidowebcomponents.github.io/components/money-input",
   "dependencies": {
     "polymer": "Polymer/polymer#^1.4.0",
