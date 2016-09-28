@@ -8,9 +8,9 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
 
-<link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../paper-input/paper-input.html">
-<link rel="import" href="../paper-input/paper-input-error.html">
+<link rel="import" href="bower_components/polymer/polymer.html">
+<link rel="import" href="bower_components/paper-input/paper-input.html">
+<link rel="import" href="bower_components/paper-input/paper-input-error.html">
 
 <!--
 `<money-input>` is a customizable input validator and mask for currency amounts.
@@ -47,6 +47,7 @@ Custom property | Description | Default
     <paper-input
             id="input"
             label="[[label]]"
+            no-label-float="[[noLabelFloat]]"
             required$="[[required]]"
             value="{{_formattedValue}}"
             name$="[[name]]"
@@ -98,6 +99,12 @@ Custom property | Description | Default
         label: {
           type: String,
           value: 'Amount'
+        },
+
+        /** Disables the floating label */
+        noLabelFloat: {
+          type: Boolean,
+          value: false
         },
 
         /** Presets field value notifies new values */
