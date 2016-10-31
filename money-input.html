@@ -198,7 +198,7 @@ Custom property | Description | Default
             var signal = (""+this.value).indexOf("\-")>=0 ? "-" : "";
             this._formattedValue = signal + ((""+this.value).length >= this.precision ? this.value : (this.value + Array(this.precision + 1).join("0")));
           } else {
-            this.$.clean();
+            this.clean();
           }
         }
       },
