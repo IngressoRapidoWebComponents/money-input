@@ -187,15 +187,19 @@ Custom property | Description | Default
       },
 
       /** Clean completely the input value, this method will set the value to undefined */
-      clean: function(){
+      clean: function() {
         this.value = undefined;
         this._formattedValue = "";
       },
 
-      _valueChange: function(){
-        if(this.value && this._formattedValue!= this.value) {
-          var signal = (""+this.value).indexOf("\-")>=0 ? "-" : "";
-          this._formattedValue = signal + ((""+this.value).length >= this.precision ? this.value : (this.value + Array(this.precision + 1).join("0")));
+      _valueChange: function() {
+        if (this._formattedValue != this.value) {
+          if(this.value) {
+            var signal = (""+this.value).indexOf("\-")>=0 ? "-" : "";
+            this._formattedValue = signal + ((""+this.value).length >= this.precision ? this.value : (this.value + Array(this.precision + 1).join("0")));
+          } else {
+            this.$.clean();
+          }
         }
       },
 
