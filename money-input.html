@@ -194,7 +194,7 @@ Custom property | Description | Default
 
       _valueChange: function() {
         if (this._formattedValue != this.value) {
-          if(this.value) {
+          if(!isNaN(parseFloat(this.value)) && isFinite(this.value)) {
             var signal = (""+this.value).indexOf("\-")>=0 ? "-" : "";
             this._formattedValue = signal + ((""+this.value).length >= this.precision ? this.value : (this.value + Array(this.precision + 1).join("0")));
           } else {
