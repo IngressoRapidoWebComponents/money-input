@@ -48,6 +48,7 @@ Custom property | Description | Default
             id="input"
             label="[[label]]"
             no-label-float="[[noLabelFloat]]"
+            always-float-label="[[alwaysFloatLabel]]"
             required$="[[required]]"
             value="{{_formattedValue}}"
             name$="[[name]]"
@@ -103,6 +104,12 @@ Custom property | Description | Default
 
         /** Disables the floating label */
         noLabelFloat: {
+          type: Boolean,
+          value: false
+        },
+
+        // Always float the label 
+        alwaysFloatLabel: {
           type: Boolean,
           value: false
         },
