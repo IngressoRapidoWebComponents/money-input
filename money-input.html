@@ -53,7 +53,8 @@ Custom property | Description | Default
             name$="[[name]]"
             allowed-pattern="[0-9\.\,\-]"
             disabled$="[[disabled]]"
-            readonly$="[[readonly]]">
+            readonly$="[[readonly]]"
+            always-float-label$="[[alwaysFloatLabel]]">
       <div prefix class="prefix">[[currency]]</div>
     </paper-input>
   </template>
@@ -160,6 +161,15 @@ Custom property | Description | Default
         decimalSymbol: {
           type: String,
           value: "."
+        },
+
+        /** 
+         * Boolean which indicates if the label should always float above
+         * the input box
+         */
+        alwaysFloatLabel: {
+          type: Boolean,
+          value: false
         }
       },
 
