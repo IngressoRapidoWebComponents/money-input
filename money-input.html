@@ -54,7 +54,8 @@ Custom property | Description | Default
             name$="[[name]]"
             allowed-pattern="[0-9\.\,\-]"
             disabled$="[[disabled]]"
-            readonly$="[[readonly]]">
+            readonly$="[[readonly]]"
+            placeholder$="[[placeholder]]">
       <div prefix class="prefix">[[currency]]</div>
     </paper-input>
   </template>
@@ -167,6 +168,12 @@ Custom property | Description | Default
         decimalSymbol: {
           type: String,
           value: "."
+        },
+
+        /** Placeholder to fill the input field while blank **/
+        placeholder: {
+          type: String,
+          value: ''
         }
       },
 
