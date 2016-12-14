@@ -6,7 +6,8 @@
   "homepage": "https://ingressorapidowebcomponents.github.io/components/money-input",
   "dependencies": {
     "polymer": "Polymer/polymer#^1.4.0",
-    "paper-input": "PolymerElements/paper-input#^1.1.14"
+    "paper-input": "PolymerElements/paper-input#^1.1.14",
+    "iron-form-element-behavior": "PolymerElements/iron-form-element-behavior#^1.0.6"
   },
   "authors": [
     "Gabrielle Dias (https://github.com/gabrielle-perez-movile / https://github.com/gabycperezdias)"

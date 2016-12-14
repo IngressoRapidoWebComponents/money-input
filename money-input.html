@@ -11,6 +11,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../paper-input/paper-input.html">
 <link rel="import" href="../paper-input/paper-input-error.html">
+<link rel="import" href="../iron-form-element-behavior/iron-form-element-behavior.html">
 
 <!--
 `<money-input>` is a customizable input validator and mask for currency amounts.
@@ -63,6 +64,10 @@ Custom property | Description | Default
     Polymer({
 
       is: 'money-input',
+
+      behaviors: [
+        Polymer.IronFormElementBehavior
+      ],
 
       properties: {
         /** Internal var to store formatted number */
