@@ -247,7 +247,7 @@ Custom property | Description | Default
         this.validate();
 
         if (this._formattedValue === '' || (this._formattedValue === '0' && this.precision==0)) {
-          return;
+          return this._formattedValue = '0';
         }
 
         if(this.precision==0){
