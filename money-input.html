@@ -11,6 +11,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../paper-input/paper-input.html">
 <link rel="import" href="../paper-input/paper-input-error.html">
+<link rel="import" href="../iron-form-element-behavior/iron-form-element-behavior.html">
 
 <!--
 `<money-input>` is a customizable input validator and mask for currency amounts.
@@ -48,13 +49,14 @@ Custom property | Description | Default
             id="input"
             label="[[label]]"
             no-label-float="[[noLabelFloat]]"
+            always-float-label="[[alwaysFloatLabel]]"
             required$="[[required]]"
             value="{{_formattedValue}}"
             name$="[[name]]"
             allowed-pattern="[0-9\.\,\-]"
             disabled$="[[disabled]]"
             readonly$="[[readonly]]"
-            always-float-label$="[[alwaysFloatLabel]]">
+            placeholder$="[[placeholder]]">
       <div prefix class="prefix">[[currency]]</div>
     </paper-input>
   </template>
@@ -63,6 +65,10 @@ Custom property | Description | Default
     Polymer({
 
       is: 'money-input',
+
+      behaviors: [
+        Polymer.IronFormElementBehavior
+      ],
 
       properties: {
         /** Internal var to store formatted number */
@@ -104,6 +110,12 @@ Custom property | Description | Default
 
         /** Disables the floating label */
         noLabelFloat: {
+          type: Boolean,
+          value: false
+        },
+
+        // Always float the label 
+        alwaysFloatLabel: {
           type: Boolean,
           value: false
         },
@@ -163,13 +175,10 @@ Custom property | Description | Default
           value: "."
         },
 
-        /** 
-         * Boolean which indicates if the label should always float above
-         * the input box
-         */
-        alwaysFloatLabel: {
-          type: Boolean,
-          value: false
+        /** Placeholder to fill the input field while blank **/
+        placeholder: {
+          type: String,
+          value: ''
         }
       },
 
