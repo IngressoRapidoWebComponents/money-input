@@ -74,8 +74,7 @@ Custom property | Description | Default
         /** Internal var to store formatted number */
         _formattedValue: {
           type: String,
-          value: undefined,
-          observer: '_onValueChanged'
+          value: undefined
         },
 
         /** Disable field */
@@ -99,7 +98,7 @@ Custom property | Description | Default
         /** Field name */
         name: {
           type: String,
-          value: "amount"
+          value: 'amount'
         },
 
         /** Field label */
@@ -114,7 +113,7 @@ Custom property | Description | Default
           value: false
         },
 
-        // Always float the label 
+        // Always float the label
         alwaysFloatLabel: {
           type: Boolean,
           value: false
@@ -123,14 +122,13 @@ Custom property | Description | Default
         /** Presets field value notifies new values */
         value: {
           type: Number,
-          notify: true,
-          observer: "_valueChange"
+          notify: true
         },
 
         /** Currency used as field prefix */
         currency: {
           type: String,
-          value: "$"
+          value: '$'
         },
 
         /** Max value accepted by field */
@@ -154,25 +152,25 @@ Custom property | Description | Default
         /** Error message for values higher than min value */
         minValueErrorMessage: {
           type: String,
-          value: "Value must be higher than"
+          value: 'Value must be higher than'
         },
 
         /** Error message for values higher than max value */
         maxValueErrorMessage: {
           type: String,
-          value: "Value must be lower than"
+          value: 'Value must be lower than'
         },
 
         /** Symbol used to separate number blocks */
         unitSymbol: {
           type: String,
-          value: ","
+          value: ','
         },
 
         /** Symbol used to separate decimal from integer part */
         decimalSymbol: {
           type: String,
-          value: "."
+          value: '.'
         },
 
         /** Placeholder to fill the input field while blank **/
@@ -183,7 +181,9 @@ Custom property | Description | Default
       },
 
       observers: [
-        '_setValue(_formattedValue)'
+        '_setValue(_formattedValue)',
+        '_onValueChanged(_formattedValue)',
+        '_valueChange(value)'
       ],
 
       ready: function() {
@@ -194,13 +194,18 @@ Custom property | Description | Default
       renderElement: function(){
         this.$.input.invalid = false;
         if(this.value && !this._formattedValue) {
-          var signal = (""+this.value).indexOf("\-")>=0 ? "-" : "";
-          this._formattedValue = signal + (this.value.length >= this.precision ? this.value : (this.value + Array(this.precision + 1).join("0")));
+          var signal = this._getSignal('' + this.value);
+          if(('' + this.value).length >= this.precision) {
+            this._formattedValue = signal + this.value;
+          } else {
+            this._formattedValue = signal + this.value + this._generateNecessarySizeOfZerosChar();
+          }
         }
         this._setValue = function (f) {
           if(this._formattedValue) {
-            var signal = this._formattedValue.indexOf("\-") >= 0 ? "-" : "";
-            this.set("value", signal + (parseFloat(this._removeUI(this._formattedValue)) / (Math.pow(10, this.precision))).toFixed(this.precision));
+            var signal = this._getSignal(this._formattedValue);
+            var number = parseFloat(this._removeUI(this._formattedValue)) / (Math.pow(10, this.precision));
+            this.set('value', signal + number.toFixed(this.precision));
           }
         }
       },
@@ -208,14 +213,18 @@ Custom property | Description | Default
       /** Clean completely the input value, this method will set the value to undefined */
       clean: function() {
         this.value = undefined;
-        this._formattedValue = "";
+        this._formattedValue = '';
       },
 
       _valueChange: function() {
         if (this._formattedValue != this.value) {
           if(!isNaN(parseFloat(this.value)) && isFinite(this.value)) {
-            var signal = (""+this.value).indexOf("\-")>=0 ? "-" : "";
-            this._formattedValue = signal + ((""+this.value).length >= this.precision ? this.value : (this.value + Array(this.precision + 1).join("0")));
+            var signal = this._getSignal('' + this.value);
+            if((''+this.value).length >= this.precision) {
+              this._formattedValue = signal + this.value;
+            } else {
+              this._formattedValue = signal + this.value + this._generateNecessarySizeOfZerosChar();
+            }
           } else {
             this.clean();
           }
@@ -227,14 +236,14 @@ Custom property | Description | Default
       },
 
       _getDecimal: function(string){
-        return string.match(new RegExp("(\\d{0,"+this.precision+"})$"))[0];
+        return string.match(new RegExp('(\\d{0,' + this.precision + '})$'))[0];
       },
 
       _parse: function(string) {
         var dec = this._getDecimal(string);
-        var reg = new RegExp(dec+"$");
+        var reg = new RegExp(dec + '$');
         var result = string.replace(reg, '');
-        result = (result.length<=1 ? result : this._markAmount(result))+this.decimalSymbol+dec;
+        result = (result.length <= 1 ? result : this._markAmount(result)) + this.decimalSymbol + dec;
 
         return result;
       },
@@ -246,31 +255,36 @@ Custom property | Description | Default
       _onValueChanged: function(){
         this.validate();
 
-        if (this._formattedValue === '' || (this._formattedValue === '0' && this.precision==0)) {
-          return this._formattedValue = '0';
+        if (this._formattedValue === '' || (this._formattedValue === '0' && this.precision == 0)) {
+          this.value = this._formattedValue === '' ? undefined : 0;
+          return;
         }
 
-        if(this.precision==0){
+        if (this.precision == 0) {
           this._formattedValue = this._markAmount(this._removeUI(this._formattedValue));
           return;
         }
-        var signal = this._formattedValue.indexOf("\-")>=0 ? "-" : "";
+        var signal = this._getSignal(this._formattedValue);
 
-        if(this._removeUI(this._formattedValue).length<this.precision+1) {
-          var dec = this._getDecimal(this._removeUI(this._formattedValue)), group;
-          var decNoZeros = dec.replace(/(0*)(?=[^0]*)/, "");
+        if(this._removeUI(this._formattedValue).length < (this.precision + 1)) {
+
+          var dec = this._getDecimal(this._removeUI(this._formattedValue));
+          var group;
+          var decNoZeros = dec.replace(/(0*)(?=[^0]*)/, '');
+
           //check if needs to add 0 in the end, beginning or both
-          group = dec.match(new RegExp("(0*)(?="+ decNoZeros +")"));
-          if(group.filter(function(e,i){if(e.length>0){return e;}}).length>0){
-            if(group[0].length+decNoZeros.length==this.precision){
-              this._formattedValue = signal + "0"+ this._getDecimal(this._formattedValue);
+          group = dec.match(new RegExp('(0*)(?=' + decNoZeros + ')'));
+
+          if(group.filter(function(e,i){if(e.length>0){return e;}}).length > 0){
+            if((group[0].length + decNoZeros.length) == this.precision){
+              this._formattedValue = signal + '0' + this._getDecimal(this._formattedValue);
               return;
-            } else if(group[0].length+decNoZeros.length < this.precision) {
-              this._formattedValue = signal + group[0] + decNoZeros + Array((this.precision-(group[0].length+decNoZeros.length))+1).join("0");
+            } else if((group[0].length + decNoZeros.length) < this.precision) {
+              this._formattedValue = signal + group[0] + decNoZeros + this._generateNecessarySizeOfZerosChar(group[0].length + decNoZeros.length);
               return;
             }
           } else {
-            this._formattedValue = signal + Array((this.precision+1-decNoZeros.length)+1).join("0") + decNoZeros;
+            this._formattedValue = signal + this._generateNecessarySizeOfZerosChar(1 - decNoZeros.length) + decNoZeros;
           }
           return;
         }
@@ -282,21 +296,30 @@ Custom property | Description | Default
         return string.replace(/[^\d]*/g, '');
       },
 
-      _validate: function(value) {
-        var signal = value.indexOf("\-")>=0 ? "-" : "";
-        var n = parseFloat(signal+this._removeUI(value))/(Math.pow(10,this.precision));
+      _getSignal: function(value) {
+        return value.indexOf('\-') >= 0 ? '-' : '';
+      },
 
-        if(n>this.maxValue){
+      _generateNecessarySizeOfZerosChar: function(existingSize){
+        existingSize = existingSize || 0;
+        return Array((this.precision - Math.abs(existingSize)) + 1).join('0');
+      },
+
+      _validate: function(value) {
+        var signal = this._getSignal(value);
+        var n = parseFloat(signal + this._removeUI(value))/(Math.pow(10,this.precision));
+
+        if(n > this.maxValue){
           this.$.input.invalid = true;
-          this.$.input.errorMessage = this.maxValueErrorMessage + " "+ this.maxValue;
+          this.$.input.errorMessage = this.maxValueErrorMessage + ' ' + this.maxValue;
           return false;
-        } else if(n<this.minValue){
+        } else if(n < this.minValue){
           this.$.input.invalid = true;
-          this.$.input.errorMessage = this.minValueErrorMessage + " "+ this.minValue;
+          this.$.input.errorMessage = this.minValueErrorMessage + ' ' + this.minValue;
           return false;
         } else {
           this.$.input.invalid = false;
-          this.$.input.errorMessage = "";
+          this.$.input.errorMessage = '';
           return true;
         }
       },
